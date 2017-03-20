@@ -70,6 +70,10 @@ function parseCode(entry) {
  *  Returns an object with these properties:
  *  isValid : Bool, true if is valid
  *  value: the parsed entry (no spaces, hyphens or other chars)
+ *  formatted: the phone number in this format: (XXX) XXX-XXXX
+ *  areaCode: the area code only
+ *  part1: the first three digits of the local number
+ *  part2: the last 4 digits of the local number
  *  cleanedValue: the entry as the user typed it up to the first offending char
  *  originalValue: the entry as the user supplied it
  *

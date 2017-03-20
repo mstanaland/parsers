@@ -50,17 +50,19 @@ function parseCode(entry) {
     } else {
       isValid = false;
     }
-
-    return {
-      isValid: isValid,
-      value: parsedEntry,
-      formatted: formatted,
-      codepart1: codepart1,
-      codepart2: codepart2,
-      cleanedValue: cleanedEntry,
-      originalValue: entry,
-    };
+  } else {
+    isValid = false;
   }
+  
+  return {
+    isValid: isValid,
+    value: parsedEntry,
+    formatted: formatted,
+    codepart1: codepart1,
+    codepart2: codepart2,
+    cleanedValue: cleanedEntry,
+    originalValue: entry,
+  };
 }
 
 /**
@@ -141,7 +143,7 @@ function parsePhone(entry) {
   };
 }
 
-// Test the code validation
+// Test the code validation on submit
 // ---------------------------
 $('#testCode').submit(function(e) {
   e.preventDefault();
@@ -158,6 +160,22 @@ $('#testCode').submit(function(e) {
     $('#theConfCode').val(code.cleanedValue);
   }
 });
+
+// Test the code validation on blur
+// ---------------------------
+$('#theConfCode').blur(function() {
+  var theConfCodeValue = $('#theConfCode').val();
+  var code = parseCode(theConfCodeValue);
+  
+  if (code.isValid) {
+    console.log(code.formatted + ' is a valid code');
+    console.log('Code part 1', code.codepart1);
+    console.log('Code part 2', code.codepart2);
+  } else {
+    alert('Invalid code. Enter the code that was emailed to you.');
+    $('#theConfCode').val(code.cleanedValue);
+  }   
+})
 
 // Test the phone validation
 // ---------------------------

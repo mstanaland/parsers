@@ -9,12 +9,12 @@
 <body>
   <form id="testCode">
     <label for="theConfCode">Email confirmation code</label>
-    <input type="text" id="theConfCode" placeholder="0000-00000">
+    <input type="text" id="theConfCode" placeholder="0000-00000" onblur="validCode();">
     <button type="submit" name="button">Test code</button>    
   </form>
   <form id="testPhone">
     <label for="thePhoneNumber">U.S. phone number</label>
-    <input type="text" id="thePhoneNumber" placeholder="(000) 000-0000">
+    <input type="text" id="thePhoneNumber" placeholder="(000) 000-0000" onblur="validePhone();">
     <button type="submit" name="button">Test phone number</button>    
   </form>
   

@@ -29,15 +29,15 @@ gulp.task('images', function() {
 
 // Compile jade
 gulp.task('views', function() {
-  return gulp.src('app/*.jade')
-    .pipe($.plumber(function() {
-      beep();
-      this.emit('end');
-    }))
-    .pipe($.jade({pretty: true})).on('error', function(err) {
-      console.log(err);
-    })
-    .pipe(gulp.dest('.tmp'));
+  // return gulp.src('app/*.jade')
+  //   .pipe($.plumber(function() {
+  //     beep();
+  //     this.emit('end');
+  //   }))
+  //   .pipe($.jade({pretty: true})).on('error', function(err) {
+  //     console.log(err);
+  //   })
+  //   .pipe(gulp.dest('.tmp'));
 });
 
 

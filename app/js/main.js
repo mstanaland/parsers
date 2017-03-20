@@ -1,5 +1,17 @@
-function parseCode(inputId) {
-  var entry = document.getElementById(inputId).value;
+/**
+ * Tests a string to see if it's an 8-digit number
+ * Ignores hyphens and spaces.
+ *
+ *  Returns an object with these properties:
+ *  isValid : Bool, true if is valid
+ *  value: the parsed entry (no spaces, hyphens or other chars)
+ *  cleanedValue: the entry as the user typed it up to the first offending char
+ *  originalValue: the entry as the user supplied it
+ *  
+ * @param  {string} entry the value to test. Usually the value of an input
+ * @return {object}       returns an object
+ */
+function parseCode(entry) {
   var cleanedEntry = '';
   var parsedEntry = '';
   var isValid = true;
@@ -26,28 +38,34 @@ function parseCode(inputId) {
     
     // If there were no illegal characters and there's 8 numbers then it's good
     if (isValid && parsedEntry.length === 8) {
-      return {
-        valid: true,
-        value: parsedEntry,
-        cleanedValue: cleanedEntry,
-        originalValue: entry
-      };
+      isValid = true;
+    } else {
+      isValid = false;
     }
+    
+    return {
+      isValid: isValid,
+      value: parsedEntry,
+      cleanedValue: cleanedEntry,
+      originalValue: entry
+    };
   }
-
-  // Otherwise it's bad
-  alert('Invalid confirmation code. Enter the code that was emailed to you.');
-  return {
-    valid: false,
-    value: null,
-    cleanedValue: cleanedEntry,
-    originalValue: entry
-  };
 }
 
-
-function parsePhone(inputId) {
-  var entry = document.getElementById(inputId).value;
+/**
+ * Tests a string to see if it's in the format of a U.S. phone number
+ * Ignores hyphens, spaces, parens, +.
+ *
+ *  Returns an object with these properties:
+ *  isValid : Bool, true if is valid
+ *  value: the parsed entry (no spaces, hyphens or other chars)
+ *  cleanedValue: the entry as the user typed it up to the first offending char
+ *  originalValue: the entry as the user supplied it
+ *  
+ * @param  {string} entry the value to test. Usually the value of an input
+ * @return {object}       returns an object
+ */
+function parsePhone(entry) {
   var cleanedEntry = '';
   var parsedEntry = '';
   var isValid = false;
@@ -80,45 +98,47 @@ function parsePhone(inputId) {
     // 11 digits must be 1 + area code + 3 + 4
     // leading digit must be a 1
     else if (length === 11 && parsedEntry[0] === '1') {
+      parsedEntry = parsedEntry.substring(1);
       isValid = true;
     }
   }
   
-  if (isValid) {
-    return {
-      valid: true,
-      value: parsedEntry,
-      cleanedValue: cleanedEntry,
-      originalValue: entry
-    };
-  } 
-  else {
-    alert('Invalid U.S. phone number. Enter your phone number with area code.');
-    return {
-      valid: false,
-      value: null,
-      cleanedValue: cleanedEntry,
-      originalValue: entry
-    };
-  }  
+  return {
+    isValid: isValid,
+    value: parsedEntry,
+    cleanedValue: cleanedEntry,
+    originalValue: entry
+  };
+  
 }
 
-
-$('#form').submit(function(e) {
+// Test the code validation
+// ---------------------------
+$('#testCode').submit(function(e) {
   e.preventDefault();
   
-  var code = parseCode('theConfCode');
-  var phone = parsePhone('thePhoneNumber');
+  var theConfCodeValue = $('#theConfCode').val();
+  var code = parseCode(theConfCodeValue);
   
-  if (code.valid) {
+  if (code.isValid) {
     console.log('Valid parsed code', code.value);
   } else {
+    alert('Invalid code. Enter the code that was emailed to you.');
     $('#theConfCode').val(code.cleanedValue);
   }
+});
+
+// Test the code validation
+// ---------------------------
+$('#testPhone').submit(function(e) {
+  e.preventDefault();
   
-  if (phone.valid) {
+  var thePhoneNumberValue = $('#thePhoneNumber').val();
+  var phone = parsePhone(thePhoneNumberValue);
+  
+  if (phone.isValid) {
     console.log('Valid parsed phone', phone.value);
   } else {
-    $('#thePhoneNumber').val(phone.cleanedValue);
+    alert('Invalid U.S. phone number. Enter your phone number with area code.');
   }
 });  

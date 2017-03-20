@@ -15,54 +15,50 @@
  * @return {object}       returns an object
  */
 function parseCode(entry) {
-  var cleanedEntry = '';
-  var parsedEntry = '';
-  var isValid = true;
+  var parsed = {
+    isValid: true,
+    originalValue: entry,
+    cleanedEntry: '',
+    value: '',
+    formatted: null,
+    codepart1: null,
+    codepart2: null,
+  };
+  
   var codeFormat = /^([0-9]{4})[- ]?([0-9]{4})$/;
   var number = /[0-9]/;
   var separator = /(?:-| )/;
-  var formatted;
-  var codepart1;
-  var codepart2;
+
 
   // Check if entry is a string and not empty
   if (typeof entry === 'string' && entry.length) {
     // Loop over input text and check if each char is a digit or separator
     for (var i = 0; i < entry.length; i += 1) {
       if (number.test(entry[i])) {
-        parsedEntry += entry[i];
-        cleanedEntry += entry[i];
-      } else if (separator.test(entry[i])) {
-        cleanedEntry += entry[i];
+        parsed.value += entry[i];
+        parsed.cleanedEntry += entry[i];
+      } else if (!separator.test(entry[i])) {
+        parsed.cleanedEntry += entry[i];
       } else {
         // char is an illegal character so stop checking
-        isValid = false;
+        parsed.isValid = false;
         break;
       }
     }
 
     // If there were no illegal characters and there's 8 numbers then it's good
-    if (isValid && parsedEntry.length === 8) {
-      isValid = true;
-      formatted = parsedEntry.replace(codeFormat, '$1-$2');
-      codepart1 = parsedEntry.replace(codeFormat, '$1');
-      codepart2 = parsedEntry.replace(codeFormat, '$2');
+    if (parsed.isValid && parsed.value.length === 8) {
+      parsed.formatted = parsed.value.replace(codeFormat, '$1-$2');
+      parsed.codepart1 = parsed.value.replace(codeFormat, '$1');
+      parsed.codepart2 = parsed.value.replace(codeFormat, '$2');
     } else {
-      isValid = false;
+      parsed.isValid = false;
     }
   } else {
-    isValid = false;
+    parsed.isValid = false;
   }
-  
-  return {
-    isValid: isValid,
-    value: parsedEntry,
-    formatted: formatted,
-    codepart1: codepart1,
-    codepart2: codepart2,
-    cleanedValue: cleanedEntry,
-    originalValue: entry,
-  };
+
+  return parsed;
 }
 
 /**
@@ -83,64 +79,57 @@ function parseCode(entry) {
  * @return {object}       returns an object
  */
 function parsePhone(entry) {
-  var cleanedEntry = '';
-  var parsedEntry = '';
-  var isValid = false;
+  var parsed = {
+    isValid: false,
+    cleanedEntry: '',
+    value: '',
+    formatted: null,
+    areaCode: null,
+    part1: null,
+    part2: null,
+  };
   var number = /[0-9]/;
   var separator = /(?: |-|\+|\)|\(|\.|\*|\#)/;
   var phoneFormat = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
   var length;
-  var formatted;
-  var areaCode;
-  var part1;
-  var part2;
 
   if (typeof entry === 'string' && entry.length) {
     for (var i = 0; i < entry.length; i += 1) {
       if (number.test(entry[i])) {
-        parsedEntry += entry[i];
-        cleanedEntry += entry[i];
+        parsed.value += entry[i];
+        parsed.cleanedEntry += entry[i];
       } else if (separator.test(entry[i])) {
-        cleanedEntry += entry[i];
+        parsed.cleanedEntry += entry[i];
       } else {
-        isValid = false;
+        parsed.isValid = false;
         break;
       }
     }
 
-    length = parsedEntry.length;
+    length = parsed.value.length;
 
     // 10 digits must be area code + 3 + 4
     // Area code can't start with a 0 or 1
-    if (length === 10 && parseInt(parsedEntry[0]) > 1) {
-      isValid = true;
-    } else if (length === 11 && parsedEntry[0] === '1') {
+    if (length === 10 && parseInt(parsed.value[0]) > 1) {
+      parsed.isValid = true;
+    } else if (length === 11 && parsed.value[0] === '1') {
       // 11 digits must be 1 + area code + 3 + 4
       // leading 1 is stripped out
-      parsedEntry = parsedEntry.substring(1);
-      isValid = true;
+      parsed.value = parsed.value.substring(1);
+      parsed.isValid = true;
     } else {
-      isValid = false;
+      parsed.isValid = false;
     }
   }
   
-  if (isValid) {
-    formatted = parsedEntry.replace(phoneFormat, '($1) $2-$3');
-    areaCode = parsedEntry.replace(phoneFormat, '$1');
-    part1 = parsedEntry.replace(phoneFormat, '$2');
-    part2 = parsedEntry.replace(phoneFormat, '$3');
+  if (parsed.isValid) {
+    parsed.formatted = parsed.value.replace(phoneFormat, '($1) $2-$3');
+    parsed.areaCode = parsed.value.replace(phoneFormat, '$1');
+    parsed.part1 = parsed.value.replace(phoneFormat, '$2');
+    parsed.part2 = parsed.value.replace(phoneFormat, '$3');
   }
 
-  return {
-    isValid: isValid,
-    value: parsedEntry,
-    formatted: formatted,
-    areaCode: areaCode,
-    part1: part1,
-    part2: part2,
-    cleanedValue: cleanedEntry,
-    originalValue: entry,
-  };
+  return parsed;
 }
 
 // Test the code validation on submit
@@ -171,7 +160,7 @@ $('#theConfCode').blur(function() {
     console.log(code.formatted + ' is a valid code');
     console.log('Code part 1', code.codepart1);
     console.log('Code part 2', code.codepart2);
-  } else {
+  } else if (theConfCodeValue.length) {
     alert('Invalid code. Enter the code that was emailed to you.');
     $('#theConfCode').val(code.cleanedValue);
   }   

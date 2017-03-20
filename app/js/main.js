@@ -96,7 +96,7 @@ function parsePhone(entry) {
       isValid = true;
     }
     // 11 digits must be 1 + area code + 3 + 4
-    // leading digit must be a 1
+    // leading 1 is stripped out
     else if (length === 11 && parsedEntry[0] === '1') {
       parsedEntry = parsedEntry.substring(1);
       isValid = true;
@@ -128,7 +128,7 @@ $('#testCode').submit(function(e) {
   }
 });
 
-// Test the code validation
+// Test the phone validation
 // ---------------------------
 $('#testPhone').submit(function(e) {
   e.preventDefault();

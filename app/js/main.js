@@ -52,7 +52,7 @@ function parsePhone(inputId) {
   var parsedEntry = '';
   var isValid = false;
   var number = /[0-9]/;
-  var separator = /(?: |-|\+|\)|\(|\.)/;
+  var separator = /(?: |-|\+|\)|\(|\.|\*|\#)/;
   var length;
   
   if (typeof entry === 'string' && entry.length) {

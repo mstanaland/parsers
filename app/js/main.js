@@ -91,7 +91,6 @@ function parsePhone(entry) {
   var number = /[0-9]/;
   var separator = /(?: |-|\+|\)|\(|\.|\*|\#)/;
   var phoneFormat = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-  var length;
 
   if (typeof entry === 'string' && entry.length) {
     for (var i = 0; i < entry.length; i += 1) {
@@ -106,16 +105,15 @@ function parsePhone(entry) {
       }
     }
 
-    length = parsed.value.length;
-
+    // 11 digits must be 1 + area code + 3 + 4
+    // leading 1 is stripped out
+    if (parsed.value.length === 11 && parsed.value[0] === '1') {
+      parsed.value = parsed.value.substring(1);
+    }
+    
     // 10 digits must be area code + 3 + 4
     // Area code can't start with a 0 or 1
-    if (length === 10 && parseInt(parsed.value[0]) > 1) {
-      parsed.isValid = true;
-    } else if (length === 11 && parsed.value[0] === '1') {
-      // 11 digits must be 1 + area code + 3 + 4
-      // leading 1 is stripped out
-      parsed.value = parsed.value.substring(1);
+    if (parsed.value.length === 10 && parseInt(parsed.value[0]) > 1) {
       parsed.isValid = true;
     } else {
       parsed.isValid = false;

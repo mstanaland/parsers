@@ -30,7 +30,7 @@ function parseCode(entry) {
         cleanedEntry += entry[i];
       } 
       else {
-        // char is an illegal character so not valid
+        // char is an illegal character so stop checking
         isValid = false;
         break;
       }

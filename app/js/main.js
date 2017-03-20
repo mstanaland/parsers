@@ -148,21 +148,21 @@ $('#testCode').submit(function(e) {
   }
 });
 
-// Test the code validation on blur
-// ---------------------------
-$('#theConfCode').blur(function() {
-  var theConfCodeValue = $('#theConfCode').val();
-  var code = parseCode(theConfCodeValue);
+// // Test the code validation on blur
+// // ---------------------------
+// $('#theConfCode').blur(function() {
+//   var theConfCodeValue = $('#theConfCode').val();
+//   var code = parseCode(theConfCodeValue);
   
-  if (code.isValid) {
-    console.log(code.formatted + ' is a valid code');
-    console.log('Code part 1', code.codepart1);
-    console.log('Code part 2', code.codepart2);
-  } else if (theConfCodeValue.length) {
-    alert('Invalid code. Enter the code that was emailed to you.');
-    $('#theConfCode').val(code.cleanedValue);
-  }   
-})
+//   if (code.isValid) {
+//     console.log(code.formatted + ' is a valid code');
+//     console.log('Code part 1', code.codepart1);
+//     console.log('Code part 2', code.codepart2);
+//   } else {
+//     alert('Invalid code. Enter the code that was emailed to you.');
+//     $('#theConfCode').val(code.cleanedValue);
+//   }   
+// })
 
 // Test the phone validation
 // ---------------------------
@@ -181,3 +181,33 @@ $('#testPhone').submit(function(e) {
     alert('Invalid U.S. phone number. Enter your phone number with area code.');
   }
 });
+
+
+function validCode() {
+  var theConfCodeValue = $('#theConfCode').val();
+  var code = parseCode(theConfCodeValue);
+
+  if (code.isValid) {
+    console.log(code.formatted + ' is a valid code');
+    console.log('Code part 1', code.codepart1);
+    console.log('Code part 2', code.codepart2);
+  } else if (theConfCodeValue.length) {
+    alert('Invalid code. Enter the code that was emailed to you.');
+    $('#theConfCode').val(code.cleanedValue);
+  }
+}
+
+function validePhone() {
+
+  var thePhoneNumberValue = $('#thePhoneNumber').val();
+  var phone = parsePhone(thePhoneNumberValue);
+
+  if (phone.isValid) {
+    console.log(phone.formatted + ' is a valid U.S. phone number format');
+    console.log('Area code', phone.areaCode);
+    console.log('Part 1', phone.part1);
+    console.log('Part 2', phone.part2);
+  } else {
+    alert('Invalid U.S. phone number. Enter your phone number with area code.');
+  }  
+}

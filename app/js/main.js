@@ -3,32 +3,37 @@
  * Ignores hyphens and spaces.
  *
  *  Returns an object with these properties:
- *  isValid : Bool, true if is valid
+ *  originalValue: the entry as the user supplied it
  *  value: the parsed entry (no spaces, hyphens or other chars)
+ *  cleanedValue: the entry as the user typed it up to the first offending char
  *  formatted: the value with separating hyphen
  *  codepart1: the first 4 digits
  *  codepart2: the last 4 digits
- *  cleanedValue: the entry as the user typed it up to the first offending char
- *  originalValue: the entry as the user supplied it
+ *  isValid : Bool -- true if is valid
+ *  invalidChar: Bool -- true if entry contained a non-number, hyphen or space
+ *  isBlank: Bool -- true if entry was empty or not a string
+ *  wrongCount: Bool -- true is more or fewer than 8 numbers were provided
  *
  * @param  {string} entry the value to test. Usually the value of an input
  * @return {object}       returns an object
  */
 function parseCode(entry) {
   var parsed = {
-    isValid: true,
     originalValue: entry,
-    cleanedEntry: '',
     value: '',
+    cleanedValue: '',
     formatted: null,
     codepart1: null,
     codepart2: null,
+    isValid: false,
+    invalidChar: false,
+    isBlank: false,
+    wrongCount: false,
   };
   
   var codeFormat = /^([0-9]{4})[- ]?([0-9]{4})$/;
   var number = /[0-9]/;
   var separator = /(?:-| )/;
-
 
   // Check if entry is a string and not empty
   if (typeof entry === 'string' && entry.length) {
@@ -36,26 +41,29 @@ function parseCode(entry) {
     for (var i = 0; i < entry.length; i += 1) {
       if (number.test(entry[i])) {
         parsed.value += entry[i];
-        parsed.cleanedEntry += entry[i];
-      } else if (!separator.test(entry[i])) {
-        parsed.cleanedEntry += entry[i];
+        parsed.cleanedValue += entry[i];
+      } else if (separator.test(entry[i])) {
+        parsed.cleanedValue += entry[i];
       } else {
         // char is an illegal character so stop checking
-        parsed.isValid = false;
+        parsed.invalidChar = true;
         break;
       }
     }
-
-    // If there were no illegal characters and there's 8 numbers then it's good
-    if (parsed.isValid && parsed.value.length === 8) {
+    
+    if (parsed.value.length !== 8) {
+      parsed.wrongCount = true;
+    }
+    
+    if (parsed.value.length === 8 && !parsed.invalidChar) {
+      parsed.isValid = true;
       parsed.formatted = parsed.value.replace(codeFormat, '$1-$2');
       parsed.codepart1 = parsed.value.replace(codeFormat, '$1');
       parsed.codepart2 = parsed.value.replace(codeFormat, '$2');
-    } else {
-      parsed.isValid = false;
-    }
+    } 
   } else {
-    parsed.isValid = false;
+    // Entry is blank
+    parsed.isBlank = true;
   }
 
   return parsed;
@@ -80,27 +88,34 @@ function parseCode(entry) {
  */
 function parsePhone(entry) {
   var parsed = {
-    isValid: false,
-    cleanedEntry: '',
+    originalValue: entry,
     value: '',
+    cleanedValue: '',
     formatted: null,
     areaCode: null,
     part1: null,
     part2: null,
+    isValid: false,
+    invalidChar: false,
+    isBlank: false,
+    badAreaCode: false,
+    wrongCount: false,
   };
   var number = /[0-9]/;
   var separator = /(?: |-|\+|\)|\(|\.|\*|\#)/;
   var phoneFormat = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
   if (typeof entry === 'string' && entry.length) {
+    // Loop over input text and check if each char is a digit or separator
     for (var i = 0; i < entry.length; i += 1) {
       if (number.test(entry[i])) {
         parsed.value += entry[i];
-        parsed.cleanedEntry += entry[i];
+        parsed.cleanedValue += entry[i];
       } else if (separator.test(entry[i])) {
-        parsed.cleanedEntry += entry[i];
+        parsed.cleanedValue += entry[i];
       } else {
-        parsed.isValid = false;
+        // char is an illegal character so stop checking
+        parsed.invalidChar = true;
         break;
       }
     }
@@ -111,25 +126,51 @@ function parsePhone(entry) {
       parsed.value = parsed.value.substring(1);
     }
     
+    if (parsed.value.length !== 10) {
+      parsed.wrongCount = true;
+    }
+    
     // 10 digits must be area code + 3 + 4
     // Area code can't start with a 0 or 1
     if (parsed.value.length === 10 && parseInt(parsed.value[0]) > 1) {
       parsed.isValid = true;
-    } else {
-      parsed.isValid = false;
+      parsed.badAreaCode = false;
+    } else if (parsed.value.length === 10) {
+      parsed.badAreaCode = true;
     }
+  } else {
+    parsed.isBlank = true;
   }
   
-  if (parsed.isValid) {
+  if (parsed.isValid || parsed.badAreaCode) {
     parsed.formatted = parsed.value.replace(phoneFormat, '($1) $2-$3');
     parsed.areaCode = parsed.value.replace(phoneFormat, '$1');
     parsed.part1 = parsed.value.replace(phoneFormat, '$2');
     parsed.part2 = parsed.value.replace(phoneFormat, '$3');
   }
-
   return parsed;
 }
 
+// ---------------------------
+// Error message helper
+// ---------------------------
+function getErrorMessage(error, fieldName) {
+  switch (error) {
+    case 'isBlank':
+      return 'The ' + fieldName + ' field is required and can not be blank';
+      break;
+    case 'invalidChar':
+      return 'The ' + fieldName + ' field contains invalid characters. Check your entry and try again';
+      break;
+    case 'wrongCount':
+      return 'The ' + fieldName + ' field is not valid. Check your entry and try again.';
+      break;
+    default:
+      return 'The ' + fieldName + ' field is not valid. Check your entry and try again.';
+  }
+}
+
+// ---------------------------
 // Test the code validation on submit
 // ---------------------------
 $('#testCode').submit(function(e) {
@@ -137,33 +178,26 @@ $('#testCode').submit(function(e) {
 
   var theConfCodeValue = $('#theConfCode').val();
   var code = parseCode(theConfCodeValue);
+  fieldName = 'confirmation code'
+  var message;
 
   if (code.isValid) {
-    console.log(code.formatted + ' is a valid code');
-    console.log('Code part 1', code.codepart1);
-    console.log('Code part 2', code.codepart2);
+    $('.codeResults').html('<p>' + code.formatted + ' is a valid code.</p><p>Code part 1: ' + code.codepart1 + '</p><p>Code part 2: ' + code.codepart2 + '</p>');
   } else {
-    alert('Invalid code. Enter the code that was emailed to you.');
-    $('#theConfCode').val(code.cleanedValue);
+    $('.codeResults').html('<p>That code is not valid.</p><p>You entered: ' + code.originalValue + '</p>');
+    if (code.isBlank) {
+      message = getErrorMessage('isBlank', fieldName);
+    } else if (code.invalidChar) {
+      message = getErrorMessage('invalidChar', fieldName);
+    } else {
+      message = getErrorMessage('wrongCount', fieldName);
+    }
+    alert(message);
   }
+  console.log(code);
 });
 
-// Test the code validation on blur
 // ---------------------------
-$('#theConfCode').blur(function() {
-  var theConfCodeValue = $('#theConfCode').val();
-  var code = parseCode(theConfCodeValue);
-  
-  if (code.isValid) {
-    console.log(code.formatted + ' is a valid code');
-    console.log('Code part 1', code.codepart1);
-    console.log('Code part 2', code.codepart2);
-  } else if (theConfCodeValue.length) {
-    alert('Invalid code. Enter the code that was emailed to you.');
-    $('#theConfCode').val(code.cleanedValue);
-  }   
-})
-
 // Test the phone validation
 // ---------------------------
 $('#testPhone').submit(function(e) {
@@ -171,13 +205,23 @@ $('#testPhone').submit(function(e) {
 
   var thePhoneNumberValue = $('#thePhoneNumber').val();
   var phone = parsePhone(thePhoneNumberValue);
+  fieldName = 'phone number'
+  var message;
 
   if (phone.isValid) {
-    console.log(phone.formatted + ' is a valid U.S. phone number format');
-    console.log('Area code', phone.areaCode);
-    console.log('Part 1', phone.part1);
-    console.log('Part 2', phone.part2);
+    $('.phoneResults').html('<p>' + phone.formatted + ' is a valid phone number.</p><p>Area code: ' + phone.areaCode + '</p><p>Local part 1: ' + phone.part1 + '</p><p>Local part 2: ' + phone.part2 + '</p>');
   } else {
-    alert('Invalid U.S. phone number. Enter your phone number with area code.');
+    $('.phoneResults').html('<p>That phone number is not valid.</p><p>You entered: ' + phone.originalValue + '</p>');
+    if (phone.isBlank) {
+      message = getErrorMessage('isBlank', fieldName);
+    } else if (phone.invalidChar) {
+      message = getErrorMessage('invalidChar', fieldName);
+    } else if (phone.badAreaCode) {
+      message = phone.areaCode + ' is not a valid area code. Check the phone number field and try again.'
+    } else {
+      message = getErrorMessage('wrongCount', fieldName);
+    }
+    alert(message);
   }
+  console.log(phone);
 });

@@ -1,0 +1,21 @@
+{
+  "name": "quick-start",
+  "description": "Quick start for simple web projects",
+  "main": "index.js",
+  "authors": [
+    "Michael Stanaland <mstanaland@mac.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/mstanaland/quick-start",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.0"
+  }
+}

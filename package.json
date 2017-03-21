@@ -1,6 +1,7 @@
 {
   "scripts": {
     "postinstall": "bower install",
+    "start": "gulp serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "private": true,

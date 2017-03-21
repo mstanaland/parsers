@@ -101,6 +101,7 @@ function parsePhone(entry) {
     invalidChar: false,
     isBlank: false,
     badAreaCode: null,
+    badExchangeCode: null,
     wrongCount: false,
   };
   var number = /[0-9]/;
@@ -135,16 +136,26 @@ function parsePhone(entry) {
     // 10 digits must be area code + 3 + 4
     // Area code can't start with a 0 or 1
     if (parsed.value.length === 10 && parseInt(parsed.value[0]) > 1) {
-      parsed.isValid = true;
       parsed.badAreaCode = false;
     } else if (parsed.value.length === 10) {
       parsed.badAreaCode = true;
+    }
+    
+    //Change code can't start with a 0 or 1
+    if (parsed.value.length === 10 && parseInt(parsed.value[3]) > 1) {
+      parsed.badExchangeCode = false;
+    } else {
+      parsed.badExchangeCode = true;
     }
   } else {
     parsed.isBlank = true;
   }
   
-  if (parsed.isValid || parsed.badAreaCode) {
+  if (!parsed.isBlank && !parsed.wrongCount && !parsed.badAreaCode && !parsed.badExchangeCode) {
+    parsed.isValid = true;
+  }
+  
+  if (parsed.isValid || parsed.badAreaCode || parsed.badExchangeCode) {
     parsed.formatted = parsed.value.replace(phoneFormat, '($1) $2-$3');
     parsed.areaCode = parsed.value.replace(phoneFormat, '$1');
     parsed.part1 = parsed.value.replace(phoneFormat, '$2');
@@ -234,8 +245,13 @@ $('#testPhone').submit(function(e) {
       '<p class="lead">🙅 Invalid</p>' +
       '<p>User entered: ' + phone.originalValue + '</p>' +
       '<p>The good bit: ' + phone.cleanedValue + '</p>' +
+      '<p>Formatted number: ' + phone.formatted + '</p>' +
+      '<p>Area code: ' + phone.areaCode + '</p>' +
+      '<p>Exchange code: ' + phone.part1 + '</p>' +
+      '<p>Subscriber number: ' + phone.part2 + '</p>' +
       '<p>Is blank: ' + phone.isBlank + '</p>' +
       '<p>Bad area code: ' + phone.badAreaCode + '</p>' +
+      '<p>Bad exchange code: ' + phone.badExchangeCode + '</p>' +
       '<p>Wrong length: ' + phone.wrongCount + '</p>' +
       '<p>Invalid chars: ' + phone.invalidChar + '</p>');
     if (phone.isBlank) {
@@ -244,6 +260,8 @@ $('#testPhone').submit(function(e) {
       message = getErrorMessage('invalidChar', fieldName);
     } else if (phone.badAreaCode) {
       message = phone.areaCode + ' is not a valid area code. Check the phone number field and try again.'
+    } else if (phone.badExchangeCode) {
+      message = 'That is not a valid U.S. phone number. Check your entry and try again.'
     } else {
       message = getErrorMessage('wrongCount', fieldName);
     }

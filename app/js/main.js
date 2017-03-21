@@ -33,7 +33,7 @@ function parseCode(entry) {
   
   var codeFormat = /^([0-9]{4})[- ]?([0-9]{4})$/;
   var number = /[0-9]/;
-  var separator = /(?:-| )/;
+  var separator = /[.,\/#!$%\^&\*;:{}=\-–—_`~()\s]/;
 
   // Check if entry is a string and not empty
   if (typeof entry === 'string' && entry.length) {
@@ -102,7 +102,7 @@ function parsePhone(entry) {
     wrongCount: false,
   };
   var number = /[0-9]/;
-  var separator = /(?: |-|\+|\)|\(|\.|\*|\#)/;
+  var separator = /[.,\/#!$%\^&\*;:{}=\-–—_`~()\s+]/;
   var phoneFormat = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
   if (typeof entry === 'string' && entry.length) {

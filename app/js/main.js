@@ -28,7 +28,7 @@ function parseCode(entry) {
     isValid: false,
     invalidChar: false,
     isBlank: false,
-    wrongCount: false,
+    wrongCount: true,
   };
   
   var codeFormat = /^([0-9]{4})[- ]?([0-9]{4})$/;
@@ -53,6 +53,8 @@ function parseCode(entry) {
     
     if (parsed.value.length !== 8) {
       parsed.wrongCount = true;
+    } else {
+      parsed.wrongCount = false;
     }
     
     if (parsed.value.length === 8 && !parsed.invalidChar) {
@@ -98,7 +100,7 @@ function parsePhone(entry) {
     isValid: false,
     invalidChar: false,
     isBlank: false,
-    badAreaCode: false,
+    badAreaCode: null,
     wrongCount: false,
   };
   var number = /[0-9]/;
@@ -182,9 +184,20 @@ $('#testCode').submit(function(e) {
   var message;
 
   if (code.isValid) {
-    $('.codeResults').html('<p>' + code.formatted + ' is a valid code.</p><p>Code part 1: ' + code.codepart1 + '</p><p>Code part 2: ' + code.codepart2 + '</p>');
+    $('.codeResults').html(
+      '<p class="lead">✅ Valid</p>' +
+      '<p>User entered: ' + code.originalValue + '</p>' +
+      '<p>Formatted code: ' + code.formatted + '</p>' +
+      '<p>First 4 digits: ' + code.codepart1 + '</p>' +
+      '<p>Last four digits: ' + code.codepart2 + '</p>');
   } else {
-    $('.codeResults').html('<p>That code is not valid.</p><p>You entered: ' + code.originalValue + '</p>');
+    $('.codeResults').html(
+      '<p class="lead">🙅 Invalid</p>' +
+      '<p>User entered: ' + code.originalValue + '</p>' +
+      '<p>The good bit: ' + code.cleanedValue + '</p>' +
+      '<p>Is blank: ' + code.isBlank + '</p>' +
+      '<p>Wrong length: ' + code.wrongCount + '</p>' +
+      '<p>Invalid chars: ' + code.invalidChar + '</p>');
     if (code.isBlank) {
       message = getErrorMessage('isBlank', fieldName);
     } else if (code.invalidChar) {
@@ -209,9 +222,22 @@ $('#testPhone').submit(function(e) {
   var message;
 
   if (phone.isValid) {
-    $('.phoneResults').html('<p>' + phone.formatted + ' is a valid phone number.</p><p>Area code: ' + phone.areaCode + '</p><p>Local part 1: ' + phone.part1 + '</p><p>Local part 2: ' + phone.part2 + '</p>');
+    $('.phoneResults').html(
+      '<p class="lead">✅ Valid</p>' +
+      '<p>User entered: ' + phone.originalValue + '</p>' +
+      '<p>Formatted number: ' + phone.formatted + '</p>' +
+      '<p>Area code: ' + phone.areaCode + '</p>' +
+      '<p>Local part 1: ' + phone.part1 + '</p>' +
+      '<p>Local part 2: ' + phone.part2 + '</p>');
   } else {
-    $('.phoneResults').html('<p>That phone number is not valid.</p><p>You entered: ' + phone.originalValue + '</p>');
+    $('.phoneResults').html(
+      '<p class="lead">🙅 Invalid</p>' +
+      '<p>User entered: ' + phone.originalValue + '</p>' +
+      '<p>The good bit: ' + phone.cleanedValue + '</p>' +
+      '<p>Is blank: ' + phone.isBlank + '</p>' +
+      '<p>Bad area code: ' + phone.badAreaCode + '</p>' +
+      '<p>Wrong length: ' + phone.wrongCount + '</p>' +
+      '<p>Invalid chars: ' + phone.invalidChar + '</p>');
     if (phone.isBlank) {
       message = getErrorMessage('isBlank', fieldName);
     } else if (phone.invalidChar) {

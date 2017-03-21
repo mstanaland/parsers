@@ -4,26 +4,54 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>Parsers test</title>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <style>
+    .results {
+      margin-top: 3em;
+      padding: 1em;
+      background: #f0f0f0;
+      border: solid 1px #eee;
+    }
+    
+    .results p:last-of-type {
+      margin-bottom: 0;
+    }
+  </style>
 </head>
 <body>
-  <form id="testCode">
-    <label for="theConfCode">Email confirmation code</label>
-    <input type="text" id="theConfCode" placeholder="0000-00000">
-    <button type="submit" name="button">Test code</button>    
-  </form>
-  
-  <div class="codeResults"></div>
-  
-  <hr>
-  
-  <form id="testPhone">
-    <label for="thePhoneNumber">U.S. phone number</label>
-    <input type="text" id="thePhoneNumber" placeholder="(000) 000-0000">
-    <button type="submit" name="button">Test phone number</button>    
-  </form>
-  
-  <div class="phoneResults"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>Testing parsers</h1>
+        <hr>
+      </div>
+      <div class="col-md-6">
+        <form id="testCode">
+          <div class="form-group">
+            <label for="theConfCode">Email confirmation code</label>
+            <input class="form-control" type="text" id="theConfCode" maxlength="10" placeholder="0000-00000">
+          </div>
+          <button class="btn btn-default" type="submit" name="button">Parse code</button>    
+        </form>
+        
+        <div class="results codeResults"></div>
+      </div>
+      
+      <div class="col-md-6">
+        <form id="testPhone">
+          <div class="form-group">
+            <label for="thePhoneNumber">U.S. phone number</label>
+            <input class="form-control" type="text" id="thePhoneNumber" maxlength="20" placeholder="(000) 000-0000">
+          </div>
+          <button class="btn btn-default" type="submit" name="button">Parse phone number</button>    
+        </form>
+        
+        <div class="results phoneResults"></div>
+      </div>
+    </div>
+  </div>
+
   
   <!-- <form id="form">
     <div>
